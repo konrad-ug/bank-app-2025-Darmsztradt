@@ -36,3 +36,39 @@ class TestAccount:
     def test_promo_code_absent(self):
         account = Account("Frank", "Green","12345678901")
         assert account.balance == 0.0
+
+class TestTransfers:
+    def test_outgoing_transfer_successful(self):
+        account = Account("Ivy", "Black","12345678901")
+        account.balance = 100.0
+
+        account.outgoing_transfer(30.0)
+
+        assert account.balance == 70.0
+
+    def test_incoming_transfer(self):
+        account = Account("Jack", "Hall","12345678901")
+        account.incoming_transfer(15.0)
+        assert account.balance == 15.0
+
+    def test_outgoing_transfer_insufficient_funds(self):
+        account = Account("Kate", "King","12345678901")
+        account.balance = 20.0
+        
+        account.outgoing_transfer(20.0)
+        
+        assert account.balance == 0.0
+    def test_incoming_transfer_negative_amount(self):
+        account = Account("Liam", "Moore","12345678901")
+        account.balance = 50.0
+        
+        account.incoming_transfer(-50.0)
+        
+        assert account.balance == 0.0
+    def test_outgoing_transfer_negative_amount(self):
+        account = Account("Mia", "Scott","12345678901")
+        account.balance = 50.0
+        
+        account.outgoing_transfer(-20.0)
+        
+        assert account.balance == 70.0

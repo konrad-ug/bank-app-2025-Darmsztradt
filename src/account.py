@@ -17,3 +17,10 @@ class Account:
             and promo_code.startswith("PROM_")
             and len(promo_code) == 8
         )
+    def incoming_transfer(self, amount):
+        self.balance += amount
+    def outgoing_transfer(self, amount):
+        if self.balance >= amount:
+            self.balance -= amount
+            return True
+        return False
