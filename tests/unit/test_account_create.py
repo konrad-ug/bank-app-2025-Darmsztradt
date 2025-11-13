@@ -1,6 +1,6 @@
 from src.PersonalAccount import PersonalAccount
 from src.company_account import CompanyAccount
-
+import pytest
 class TestPersonalAccount:
     def test_account_creation(self):
         account = PersonalAccount("John", "Doe","04242912345")
@@ -90,3 +90,41 @@ class TestCompanyAccount:
         account = CompanyAccount("GlobalSolutions", None)
         assert account.nip == "Invalid"
     
+
+
+
+class TestLoanForPersonalAccounts:
+    @pytest.fixture()
+    def account(self):
+        account = PersonalAccount("Test", "User","12345678901")
+        return account
+    
+    data = [
+        ([100.0, 200.0, 150.0], 400.0, True, 400.0)
+    ]
+
+
+    @pytest.mark.parametrize(("history,amount,expected_result,expected_balance"), data)
+    def test_loan(self,account: PersonalAccount,history,amount,expected_result,expected_balance):
+        account.history = history
+        result = account.submit_for_loan(amount)
+        assert expected_result
+        assert account.balance == expected_balance
+    
+#    def test_3_positive_transfers_loan_granted(self,account: PersonalAccount):
+#        account.history = [200.0, 150.0, 100.0]
+#        result = account.submit_for_loan(300)
+#        assert result
+#        assert account.balance == 300
+#
+#    def test_4_transfers_one_negative_loan_denied(self,account: PersonalAccount):
+#        account.history = [200.0, -50.0, 100.0, 150.0]
+#        result = account.submit_for_loan(400)
+#        assert not result
+#        assert account.balance == 0.0
+#
+#    def test_large_positive_with_negatives(self,account: PersonalAccount):
+#        account.history = [500.0, -100.0, 200.0, -50.0, 300.0]
+#        result = account.submit_for_loan(600)
+#        assert result
+#        assert account.balance == 600
