@@ -88,3 +88,9 @@ class BusinessAccount(Account):
         self.company_name = company_name
         self.nip = nip if len(nip) == 10 else "Invalid"
         self.express_transfer_fee = 5
+
+    def take_loan(self, amount):
+        if self.balance >= 2 * amount and -1775.0 in self.history:
+            self.balance += amount
+            return True
+        return False
