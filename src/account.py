@@ -66,18 +66,19 @@ class PersonalAccount(Account):
             return 0
 
     def submit_for_loan(self, amount):
+        if self._last_three_are_deposits() or self._sum_of_last_five_exceeds(amount):
+            self.balance += amount
+            return True
+        return False
+
+    def _last_three_are_deposits(self):
         if len(self.history) >= 3:
-            last_three = self.history[-3:]
-            if all(t > 0 for t in last_three):
-                self.balance += amount
-                return True
-        
+            return all(t > 0 for t in self.history[-3:])
+        return False
+
+    def _sum_of_last_five_exceeds(self, amount):
         if len(self.history) >= 5:
-            last_five = self.history[-5:]
-            if sum(last_five) > amount:
-                self.balance += amount
-                return True
-        
+            return sum(self.history[-5:]) > amount
         return False
 
 
