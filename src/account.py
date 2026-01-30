@@ -45,7 +45,7 @@ class PersonalAccount(Account):
 
     def get_birth_year(self, pesel):
         if pesel == "Invalid":
-            return 0 # Or handle appropriately, currently preventing crash if invalid
+            return 0
         
         try:
             year = int(pesel[0:2])
@@ -64,6 +64,21 @@ class PersonalAccount(Account):
             return year
         except ValueError:
             return 0
+
+    def submit_for_loan(self, amount):
+        if len(self.history) >= 3:
+            last_three = self.history[-3:]
+            if all(t > 0 for t in last_three):
+                self.balance += amount
+                return True
+        
+        if len(self.history) >= 5:
+            last_five = self.history[-5:]
+            if sum(last_five) > amount:
+                self.balance += amount
+                return True
+        
+        return False
 
 
 class BusinessAccount(Account):

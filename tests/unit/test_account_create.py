@@ -38,16 +38,13 @@ class TestAccount:
         assert account.balance == 0.0
 
     def test_promo_code_born_1960(self):
-         # Born in 1960 (600429...) -> Should NOT get bonus
         account = Account("Old", "Promo", "60042912345", "PROM_123")
         assert account.balance == 0.0
 
     def test_promo_code_born_1950(self):
-         # Born in 1950 (500429...) -> Should NOT get bonus
         account = Account("Older", "Promo", "50042912345", "PROM_123")
         assert account.balance == 0.0
 
     def test_promo_code_born_2000(self):
-         # Born in 2000 (002429...) -> Should get bonus
         account = Account("Young", "Promo", "00242912345", "PROM_123")
         assert account.balance == 50.0
