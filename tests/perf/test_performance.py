@@ -1,66 +1,61 @@
 import pytest
 import requests
+import time
 
-
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://127.0.0.1:5000"
 TIMEOUT = 0.5
 
 
 class TestPerformance:
-    @pytest.fixture(autouse=True)
-    def cleanup(self):
-        yield
-        # Clean up after tests
-        try:
-            response = requests.get(f"{BASE_URL}/api/accounts", timeout=TIMEOUT)
-            if response.status_code == 200:
-                accounts = response.json()
-                for acc in accounts:
-                    requests.delete(f"{BASE_URL}/api/accounts/{acc['pesel']}", timeout=TIMEOUT)
-        except:
-            pass
-
     def test_create_and_delete_100_accounts(self):
         for i in range(100):
-            pesel = f"{i:011d}"
+            pesel = f"1234567{i:04d}"
             
-            create_response = requests.post(
+            start = time.time()
+            response = requests.post(
                 f"{BASE_URL}/api/accounts",
                 json={"name": f"User{i}", "surname": f"Test{i}", "pesel": pesel},
                 timeout=TIMEOUT
             )
-            assert create_response.status_code == 201
+            elapsed = time.time() - start
             
-            delete_response = requests.delete(
-                f"{BASE_URL}/api/accounts/{pesel}",
-                timeout=TIMEOUT
-            )
-            assert delete_response.status_code == 200
+            assert response.status_code == 201, f"Create failed for account {i}"
+            assert elapsed < TIMEOUT, f"Create took {elapsed}s, expected < {TIMEOUT}s"
+            
+            start = time.time()
+            response = requests.delete(f"{BASE_URL}/api/accounts/{pesel}", timeout=TIMEOUT)
+            elapsed = time.time() - start
+            
+            assert response.status_code == 200, f"Delete failed for account {i}"
+            assert elapsed < TIMEOUT, f"Delete took {elapsed}s, expected < {TIMEOUT}s"
 
     def test_100_incoming_transfers(self):
-        pesel = "99999999999"
-        
-        create_response = requests.post(
+        pesel = "99988877766"
+        requests.post(
             f"{BASE_URL}/api/accounts",
-            json={"name": "Transfer", "surname": "Test", "pesel": pesel},
+            json={"name": "TransferTest", "surname": "User", "pesel": pesel},
             timeout=TIMEOUT
         )
-        assert create_response.status_code == 201
         
+        expected_balance = 0
         for i in range(100):
-            transfer_response = requests.post(
+            amount = 100 + i
+            expected_balance += amount
+            
+            start = time.time()
+            response = requests.post(
                 f"{BASE_URL}/api/accounts/{pesel}/transfer",
-                json={"amount": 100, "type": "incoming"},
+                json={"amount": amount, "type": "incoming"},
                 timeout=TIMEOUT
             )
-            assert transfer_response.status_code == 200
+            elapsed = time.time() - start
+            
+            assert response.status_code == 200, f"Transfer {i} failed"
+            assert elapsed < TIMEOUT, f"Transfer took {elapsed}s, expected < {TIMEOUT}s"
         
-        account_response = requests.get(
-            f"{BASE_URL}/api/accounts/{pesel}",
-            timeout=TIMEOUT
-        )
-        assert account_response.status_code == 200
-        assert account_response.json()["balance"] == 10000.0
+        response = requests.get(f"{BASE_URL}/api/accounts/{pesel}", timeout=TIMEOUT)
+        assert response.status_code == 200
+        assert response.json()["balance"] == expected_balance
         
         requests.delete(f"{BASE_URL}/api/accounts/{pesel}", timeout=TIMEOUT)
 
@@ -68,19 +63,24 @@ class TestPerformance:
         pesels = []
         
         for i in range(1000):
-            pesel = f"{i:011d}"
+            pesel = f"5555{i:07d}"
             pesels.append(pesel)
             
-            create_response = requests.post(
+            start = time.time()
+            response = requests.post(
                 f"{BASE_URL}/api/accounts",
-                json={"name": f"User{i}", "surname": f"Test{i}", "pesel": pesel},
+                json={"name": f"Bulk{i}", "surname": f"User{i}", "pesel": pesel},
                 timeout=TIMEOUT
             )
-            assert create_response.status_code == 201
+            elapsed = time.time() - start
+            
+            assert response.status_code == 201, f"Create failed for account {i}"
+            assert elapsed < TIMEOUT, f"Create took {elapsed}s"
         
-        for pesel in pesels:
-            delete_response = requests.delete(
-                f"{BASE_URL}/api/accounts/{pesel}",
-                timeout=TIMEOUT
-            )
-            assert delete_response.status_code == 200
+        for i, pesel in enumerate(pesels):
+            start = time.time()
+            response = requests.delete(f"{BASE_URL}/api/accounts/{pesel}", timeout=TIMEOUT)
+            elapsed = time.time() - start
+            
+            assert response.status_code == 200, f"Delete failed for account {i}"
+            assert elapsed < TIMEOUT, f"Delete took {elapsed}s"
