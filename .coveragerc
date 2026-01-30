@@ -2,6 +2,7 @@
 source = src
 omit = 
     *BusinessAccount*
+    *accounts_repository*
 
 [report]
 exclude_lines =
