@@ -1,6 +1,7 @@
 import os
 import requests
 from datetime import date
+from smtp.smtp import SMTPClient
 
 
 class Account:
@@ -85,6 +86,13 @@ class PersonalAccount(Account):
             return sum(self.history[-5:]) > amount
         return False
 
+    def send_history_via_email(self, email_address):
+        today = date.today().strftime("%Y-%m-%d")
+        subject = f"Account Transfer History {today}"
+        text = f"Personal account history: {self.history}"
+        smtp_client = SMTPClient()
+        return smtp_client.send(subject, text, email_address)
+
 
 
 class BusinessAccount(Account):
@@ -124,3 +132,10 @@ class BusinessAccount(Account):
             self.balance += amount
             return True
         return False
+
+    def send_history_via_email(self, email_address):
+        today = date.today().strftime("%Y-%m-%d")
+        subject = f"Account Transfer History {today}"
+        text = f"Company account history: {self.history}"
+        smtp_client = SMTPClient()
+        return smtp_client.send(subject, text, email_address)
