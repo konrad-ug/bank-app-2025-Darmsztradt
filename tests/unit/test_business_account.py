@@ -14,10 +14,5 @@ class TestBusinessAccount:
         acc2 = BusinessAccount("MyCompany", "12345678901")
         assert acc2.nip == "Invalid"
     
-    # Business accounts do not have promo code support described in Feature 7, 
-    # ensuring they don't accidentally get it if we inherited incorrectly (though init is different).
-    # Since __init__ doesn't take promo_code, we don't strictly catch it unless we try checking balance.
     def test_business_account_no_promo(self):
-        # Even if we passed something (Python keyword args), implementation should not use it.
-        # But BusinessAccount __init__ signature is strict: company_name, nip.
         pass 

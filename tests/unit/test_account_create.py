@@ -22,7 +22,6 @@ class TestAccount:
         assert account.pesel == "Invalid"
     
     def test_valid_promo_code(self):
-        # Born in 1961 (610429...) -> Should get bonus
         account = Account("Charlie", "Davis","61042912345","PROM_225")
         assert account.balance == 50.0
 
