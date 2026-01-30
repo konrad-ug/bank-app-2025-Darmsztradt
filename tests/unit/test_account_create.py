@@ -1,4 +1,4 @@
-from src.account import Account
+from src.account import PersonalAccount as Account
 
 
 class TestAccount:
@@ -22,17 +22,33 @@ class TestAccount:
         assert account.pesel == "Invalid"
     
     def test_valid_promo_code(self):
-        account = Account("Charlie", "Davis","12345678901","PROM_225")
+        # Born in 1961 (610429...) -> Should get bonus
+        account = Account("Charlie", "Davis","61042912345","PROM_225")
         assert account.balance == 50.0
 
     def test_promo_code_wrong_prefix(self):
-        account = Account("Eve", "White","12345678901","PROMO_225")
+        account = Account("Eve", "White","61042912345","PROMO_225")
         assert account.balance == 0.0
     
     def test_promo_code_wrong_suffix(self):
-        account = Account("Eve", "White","12345678901","PROM_2255")
+        account = Account("Eve", "White","61042912345","PROM_2255")
         assert account.balance == 0.0
 
     def test_promo_code_absent(self):
-        account = Account("Frank", "Green","12345678901")
+        account = Account("Frank", "Green","61042912345")
         assert account.balance == 0.0
+
+    def test_promo_code_born_1960(self):
+         # Born in 1960 (600429...) -> Should NOT get bonus
+        account = Account("Old", "Promo", "60042912345", "PROM_123")
+        assert account.balance == 0.0
+
+    def test_promo_code_born_1950(self):
+         # Born in 1950 (500429...) -> Should NOT get bonus
+        account = Account("Older", "Promo", "50042912345", "PROM_123")
+        assert account.balance == 0.0
+
+    def test_promo_code_born_2000(self):
+         # Born in 2000 (002429...) -> Should get bonus
+        account = Account("Young", "Promo", "00242912345", "PROM_123")
+        assert account.balance == 50.0
