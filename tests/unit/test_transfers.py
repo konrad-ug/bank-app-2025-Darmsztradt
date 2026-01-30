@@ -1,5 +1,18 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from src.account import PersonalAccount, BusinessAccount
+
+
+@pytest.fixture
+def mock_mf_api():
+    with patch('src.account.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+        mock_get.return_value = mock_response
+        yield mock_get
 
 
 @pytest.fixture
@@ -29,7 +42,7 @@ class TestTransfers:
         assert acc1.balance == expected_sender
         assert acc2.balance == expected_receiver
 
-    def test_transfer_between_different_account_types(self):
+    def test_transfer_between_different_account_types(self, mock_mf_api):
         acc1 = PersonalAccount("John", "Doe", "12345678901")
         acc1.balance = 200.0
         acc2 = BusinessAccount("Corp", "1234567890")

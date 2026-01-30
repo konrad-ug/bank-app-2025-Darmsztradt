@@ -1,9 +1,27 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from src.account import BusinessAccount
 
 
 @pytest.fixture
-def business_account():
+def mock_mf_api_valid():
+    with patch('src.account.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {
+                "subject": {
+                    "statusVat": "Czynny",
+                    "name": "Test Company"
+                }
+            }
+        }
+        mock_get.return_value = mock_response
+        yield mock_get
+
+
+@pytest.fixture
+def business_account(mock_mf_api_valid):
     return BusinessAccount("TestCorp", "1234567890")
 
 

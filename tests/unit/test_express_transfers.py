@@ -1,5 +1,18 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from src.account import PersonalAccount, BusinessAccount
+
+
+@pytest.fixture
+def mock_mf_api():
+    with patch('src.account.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+        mock_get.return_value = mock_response
+        yield mock_get
 
 
 class TestExpressTransfers:
@@ -10,7 +23,7 @@ class TestExpressTransfers:
         ("personal", 50.0, 50.0, -1.0, 50.0),
         ("business", 50.0, 50.0, -5.0, 50.0),
     ])
-    def test_express_transfer_scenarios(self, account_type, initial_balance, amount, expected_sender, expected_receiver):
+    def test_express_transfer_scenarios(self, mock_mf_api, account_type, initial_balance, amount, expected_sender, expected_receiver):
         if account_type == "personal":
             acc1 = PersonalAccount("John", "Doe", "12345678901")
             acc2 = PersonalAccount("Jane", "Doe", "09876543210")

@@ -1,0 +1,10 @@
+[run]
+source = src
+omit = 
+    *BusinessAccount*
+
+[report]
+exclude_lines =
+    class BusinessAccount
+    def validate_nip_with_mf
+    def take_loan
