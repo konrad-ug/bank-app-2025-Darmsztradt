@@ -107,3 +107,29 @@ def transfer(pesel):
     
     else:
         return jsonify({"error": "Unknown transfer type"}), 400
+
+
+@app.route("/api/accounts/save", methods=['POST'])
+def save_accounts():
+    from src.accounts_repository import MongoAccountsRepository
+    repo = MongoAccountsRepository()
+    accounts = registry.get_all_accounts()
+    repo.save_all(accounts)
+    return jsonify({"message": f"Saved {len(accounts)} accounts to database"}), 200
+
+
+@app.route("/api/accounts/load", methods=['POST'])
+def load_accounts():
+    from src.accounts_repository import MongoAccountsRepository
+    repo = MongoAccountsRepository()
+    accounts_data = repo.load_all()
+    
+    registry.accounts.clear()
+    
+    for data in accounts_data:
+        account = PersonalAccount(data["first_name"], data["last_name"], data["pesel"])
+        account.balance = data.get("balance", 0.0)
+        account.history = data.get("history", [])
+        registry.add_account(account)
+    
+    return jsonify({"message": f"Loaded {len(accounts_data)} accounts from database"}), 200
